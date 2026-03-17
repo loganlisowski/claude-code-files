@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 155 30% 5%;
+    --foreground: 150 20% 96%;
+    --card: 155 20% 10%;
+    --card-foreground: 150 20% 96%;
+    --popover: 155 20% 10%;
+    --popover-foreground: 150 20% 96%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 155 30% 5%;
+    --secondary: 155 25% 18%;
+    --secondary-foreground: 150 20% 96%;
+    --muted: 155 20% 15%;
+    --muted-foreground: 155 15% 55%;
+    --accent: 155 25% 20%;
+    --accent-foreground: 150 20% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 150 20% 96%;
+    --border: 155 20% 18%;
+    --input: 155 20% 18%;
+    --ring: 160 84% 39%;
+    --radius: 0.75rem;
+    --quiz: 263 70% 58%;
+    --game: 38 92% 50%;
+    --data: 217 91% 60%;
+  }
+
+  .light {
+    --background: 150 20% 98%;
+    --foreground: 155 30% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 155 30% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 155 30% 8%;
+    --primary: 160 84% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 155 15% 92%;
+    --secondary-foreground: 155 30% 8%;
+    --muted: 155 10% 95%;
+    --muted-foreground: 155 15% 45%;
+    --accent: 155 15% 92%;
+    --accent-foreground: 155 30% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 155 15% 88%;
+    --input: 155 15% 88%;
+    --ring: 160 84% 30%;
+    --quiz: 263 70% 50%;
+    --game: 38 92% 45%;
+    --data: 217 91% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(155 20% 8%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(160 40% 25%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(160 50% 35%);
+}
+
+.light ::-webkit-scrollbar-track {
+  background: hsl(0 0% 95%);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 75%);
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: hsl(0 0% 60%);
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(24px);
+    background: hsl(var(--card) / 0.7);
+    border: 1px solid hsl(var(--border) / 0.3);
+  }
+}

@@ -1,0 +1,1581 @@
+========================================
+  OrlandoCRE Intelligence Platform - Full Source Code
+========================================
+
+Submitted by: Logan Lisowski
+Date: March 14, 2026
+
+========================================
+
+// ============================================
+// FILE: .claude/launch.json
+// ============================================
+
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "/usr/local/bin/npx",
+      "runtimeArgs": ["vite", "--host"],
+      "port": 5173
+    }
+  ]
+}
+
+
+// ============================================
+// FILE: api/chat.js
+// ============================================
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return res.status(500).json({
+      error: 'ANTHROPIC_API_KEY is not configured. Add it to your Vercel environment variables.'
+    })
+  }
+
+  const { message } = req.body
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'A message string is required.' })
+  }
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are an expert commercial real estate advisor specializing in the Orlando, Florida market. You have deep knowledge of office and industrial submarkets, cap rates, tenant representation, lease structures, and investment analysis. Current Orlando context: Class A office rents $36-42/sf, industrial vacancy 2-4%, industrial rents $12-16/sf NNN, population growth ~50k/year. Respond in 3-5 sentences, be direct and specific.',
+        messages: [{ role: 'user', content: message }],
+      }),
+    })
+
+    if (!response.ok) {
+      const errBody = await response.text()
+      console.error('Anthropic API error:', response.status, errBody)
+      return res.status(502).json({
+        error: 'The AI service returned an error. Check the API key and try again.'
+      })
+    }
+
+    const data = await response.json()
+    const text = data.content && data.content[0] && data.content[0].text
+      ? data.content[0].text
+      : 'No response generated.'
+
+    return res.status(200).json({ response: text })
+  } catch (err) {
+    console.error('Chat API error:', err)
+    return res.status(500).json({
+      error: 'Internal server error while contacting the AI service.'
+    })
+  }
+}
+
+
+// ============================================
+// FILE: index.html
+// ============================================
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrlandoCRE Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+
+// ============================================
+// FILE: package.json
+// ============================================
+
+{
+  "name": "orlando-cre",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.0"
+  }
+}
+
+
+// ============================================
+// FILE: src/data.js
+// ============================================
+
+export const properties = [
+  {
+    id: 1,
+    name: "The Landmark at South Orange",
+    type: "Office",
+    submarket: "Downtown Orlando",
+    address: "200 S Orange Ave, Orlando, FL 32801",
+    sqft: 42000,
+    askingRent: 38,
+    capRate: 6.2,
+    noi: 911000,
+    score: 91,
+    status: "Available",
+    vacancy: 8.5,
+    highlights: ["Class A Tower", "LEED Gold", "Lake Eola Views"],
+    tenantProfile: "Law firms, financial services, tech companies",
+    yearBuilt: 2018,
+    floors: 12,
+    parking: "4.0/1,000 SF structured"
+  },
+  {
+    id: 2,
+    name: "MetroWest Business Park",
+    type: "Industrial",
+    submarket: "MetroWest/I-4",
+    address: "2800 Metrowest Blvd, Orlando, FL 32835",
+    sqft: 128000,
+    askingRent: 14.5,
+    capRate: 7.8,
+    noi: 1497000,
+    score: 88,
+    status: "Available",
+    vacancy: 3.2,
+    highlights: ["Cross-Dock", "32ft Clear Height", "Climate-Controlled"],
+    tenantProfile: "Logistics, e-commerce fulfillment",
+    yearBuilt: 2021,
+    floors: 1,
+    parking: "Trailer parking, 24 dock doors"
+  },
+  {
+    id: 3,
+    name: "Innovation Square Tower II",
+    type: "Office",
+    submarket: "University/Research Park",
+    address: "3259 Progress Dr, Orlando, FL 32826",
+    sqft: 31500,
+    askingRent: 29,
+    capRate: 5.8,
+    noi: 548000,
+    score: 74,
+    status: "Available",
+    vacancy: 12.1,
+    highlights: ["UCF Adjacent", "Flex Space", "Co-working Amenities"],
+    tenantProfile: "Tech startups, research labs, university spinoffs",
+    yearBuilt: 2019,
+    floors: 6,
+    parking: "3.5/1,000 SF surface"
+  },
+  {
+    id: 4,
+    name: "Airport Commerce Center",
+    type: "Industrial",
+    submarket: "Airport/Seaport",
+    address: "7200 TG Lee Blvd, Orlando, FL 32822",
+    sqft: 85000,
+    askingRent: 13.8,
+    capRate: 8.1,
+    noi: 1032000,
+    score: 95,
+    status: "Leased",
+    vacancy: 0,
+    highlights: ["Direct Airport Access", "New Construction", "Triple Net"],
+    tenantProfile: "Amazon distribution, freight logistics",
+    yearBuilt: 2023,
+    floors: 1,
+    parking: "Secured lot, 16 dock doors"
+  },
+  {
+    id: 5,
+    name: "Lake Mary Corporate Center",
+    type: "Office",
+    submarket: "Lake Mary/Heathrow",
+    address: "1185 Townpark Ave, Lake Mary, FL 32746",
+    sqft: 22000,
+    askingRent: 27,
+    capRate: 5.4,
+    noi: 332000,
+    score: 68,
+    status: "Available",
+    vacancy: 14.8,
+    highlights: ["Suburban Office", "Parking Rich", "Recently Renovated"],
+    tenantProfile: "Insurance, small professional services",
+    yearBuilt: 2007,
+    floors: 4,
+    parking: "5.0/1,000 SF surface"
+  },
+  {
+    id: 6,
+    name: "I-4 Distribution Hub",
+    type: "Industrial",
+    submarket: "I-4 Corridor East",
+    address: "4500 Distribution Dr, Orlando, FL 32824",
+    sqft: 200000,
+    askingRent: 12.5,
+    capRate: 8.9,
+    noi: 2492000,
+    score: 86,
+    status: "Available",
+    vacancy: 4.5,
+    highlights: ["Last-Mile Location", "Fully Sprinklered", "Dock-High Loading"],
+    tenantProfile: "Regional distribution, cold storage operators",
+    yearBuilt: 2022,
+    floors: 1,
+    parking: "100+ trailer spaces, 32 dock doors"
+  }
+];
+
+export const submarkets = [
+  {
+    name: "Downtown Orlando",
+    vacancy: 9.2,
+    avgRent: 36.50,
+    absorption: 45000,
+    trend: "growing",
+    trendLabel: "Growing"
+  },
+  {
+    name: "Airport/Seaport",
+    vacancy: 2.1,
+    avgRent: 14.20,
+    absorption: 120000,
+    trend: "growing",
+    trendLabel: "Growing"
+  },
+  {
+    name: "Lake Mary/Heathrow",
+    vacancy: 13.4,
+    avgRent: 28.00,
+    absorption: -12000,
+    trend: "softening",
+    trendLabel: "Softening"
+  },
+  {
+    name: "MetroWest/I-4",
+    vacancy: 3.8,
+    avgRent: 13.90,
+    absorption: 85000,
+    trend: "growing",
+    trendLabel: "Growing"
+  },
+  {
+    name: "University/Research Park",
+    vacancy: 11.5,
+    avgRent: 27.50,
+    absorption: 8000,
+    trend: "stable",
+    trendLabel: "Stable"
+  }
+];
+
+export const macroDrivers = [
+  {
+    title: "Population Growth",
+    description: "50,000+ new residents annually, top-10 metro for in-migration",
+    icon: "population"
+  },
+  {
+    title: "No State Income Tax",
+    description: "Florida attracts corporate relocations and high-net-worth individuals",
+    icon: "tax"
+  },
+  {
+    title: "Data Center Demand",
+    description: "Hyperscale operators targeting Central FL for low-risk, low-cost power",
+    icon: "data"
+  },
+  {
+    title: "I-4 Corridor",
+    description: "Tampa-Orlando-Daytona logistics spine driving industrial absorption",
+    icon: "corridor"
+  },
+  {
+    title: "Tourism Diversification",
+    description: "Beyond theme parks into medical tourism, sports, and convention demand",
+    icon: "tourism"
+  },
+  {
+    title: "Port Canaveral Access",
+    description: "Cruise and cargo port fueling last-mile industrial near the airport",
+    icon: "port"
+  }
+];
+
+export function formatCurrency(value) {
+  if (value >= 1000000) return "$" + (value / 1000000).toFixed(3) + "M";
+  if (value >= 1000) return "$" + (value / 1000).toFixed(0) + "k";
+  return "$" + value.toFixed(0);
+}
+
+export function formatNumber(value) {
+  return value.toLocaleString();
+}
+
+export function getScoreColor(score) {
+  if (score >= 85) return "#22c55e";
+  if (score >= 70) return "#eab308";
+  return "#ef4444";
+}
+
+
+// ============================================
+// FILE: src/index.css
+// ============================================
+
+/* ========================================
+   OrlandoCRE Intelligence Platform
+   Dark institutional-grade analytics theme
+   ======================================== */
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #0a0e17;
+  color: #e0e6f0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+a {
+  color: #4f8ef7;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e17;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2038;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3058;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 220px;
+  flex: 1;
+  padding: 32px 40px;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ========================================
+   Sidebar
+   ======================================== */
+
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #0d1120;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-logo h2 {
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-logo span {
+  color: #4f8ef7;
+}
+
+.sidebar-logo .logo-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+  display: block;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #6b7694;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13.5px;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: #c0c8dc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-item.active {
+  color: #4f8ef7;
+  background: rgba(79, 142, 247, 0.1);
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 1.8;
+}
+
+.sidebar-footer {
+  padding: 16px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(79, 142, 247, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f8ef7;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  color: #e0e6f0;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #5a6478;
+  line-height: 1.3;
+}
+
+.portfolio-link {
+  display: block;
+  font-size: 10px;
+  color: #4f8ef7;
+  margin-top: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.portfolio-link:hover {
+  opacity: 1;
+}
+
+/* ========================================
+   Page Transitions
+   ======================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* ========================================
+   Common Card Styles
+   ======================================== */
+
+.card {
+  background: #0d1120;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4f8ef7, #7c6cf7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(79, 142, 247, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card-clickable {
+  cursor: pointer;
+}
+
+/* ========================================
+   Stats Row
+   ======================================== */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #0d1120;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7694;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+
+/* ========================================
+   Page Title
+   ======================================== */
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7694;
+}
+
+/* ========================================
+   Filter Buttons
+   ======================================== */
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.filter-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #6b7694;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: rgba(79, 142, 247, 0.3);
+  color: #c0c8dc;
+}
+
+.filter-btn.active {
+  background: rgba(79, 142, 247, 0.15);
+  border-color: rgba(79, 142, 247, 0.3);
+  color: #4f8ef7;
+}
+
+/* ========================================
+   Property Cards Grid
+   ======================================== */
+
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.property-card {
+  padding: 0;
+}
+
+.property-card-inner {
+  padding: 24px;
+}
+
+.property-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.property-type-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-office {
+  background: rgba(79, 142, 247, 0.15);
+  color: #4f8ef7;
+}
+
+.badge-industrial {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.badge-leased {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  margin-left: 6px;
+}
+
+.property-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.property-address {
+  font-size: 12.5px;
+  color: #6b7694;
+  margin-bottom: 16px;
+}
+
+.property-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e0e6f0;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-score {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.score-label {
+  font-size: 11px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.score-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.score-number {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ========================================
+   Detail Panel
+   ======================================== */
+
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 440px;
+  background: #0d1120;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 200;
+  overflow-y: auto;
+  animation: slideInRight 0.3s ease;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.detail-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 199;
+}
+
+.detail-header {
+  padding: 28px 28px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.detail-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #6b7694;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.detail-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e6f0;
+}
+
+.detail-body {
+  padding: 24px 28px 40px;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section-title {
+  font-size: 11px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.detail-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-metric {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.detail-metric-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.detail-metric-label {
+  font-size: 11px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.highlight-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.highlight-tag {
+  padding: 5px 12px;
+  background: rgba(79, 142, 247, 0.1);
+  border: 1px solid rgba(79, 142, 247, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #4f8ef7;
+}
+
+.detail-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 13.5px;
+}
+
+.detail-info-label {
+  color: #6b7694;
+}
+
+.detail-info-value {
+  color: #e0e6f0;
+  font-weight: 500;
+}
+
+/* ========================================
+   Deal Flow
+   ======================================== */
+
+.dealflow-sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #6b7694;
+}
+
+.sort-select {
+  background: #0d1120;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #e0e6f0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: rgba(79, 142, 247, 0.4);
+}
+
+.dealflow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.dealflow-card .property-metrics {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ========================================
+   DCF Calculator
+   ======================================== */
+
+.dcf-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.dcf-panel {
+  background: #0d1120;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.dcf-panel-title {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.slider-group {
+  margin-bottom: 22px;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.slider-label {
+  font-size: 13px;
+  color: #8892a8;
+}
+
+.slider-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4f8ef7;
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: #1a2038;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4f8ef7;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(79, 142, 247, 0.4);
+  transition: transform 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #4f8ef7;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 8px rgba(79, 142, 247, 0.4);
+}
+
+.output-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.output-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.output-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.output-label {
+  font-size: 11px;
+  color: #5a6478;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.output-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.dscr-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.dscr-green {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.dscr-yellow {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.dscr-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.dcf-note {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(79, 142, 247, 0.06);
+  border: 1px solid rgba(79, 142, 247, 0.12);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #8892a8;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Market Intelligence
+   ======================================== */
+
+.submarket-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.submarket-card {
+  padding: 24px;
+}
+
+.submarket-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.submarket-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.submarket-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.submarket-metric-label {
+  color: #6b7694;
+}
+
+.submarket-metric-value {
+  color: #e0e6f0;
+  font-weight: 500;
+}
+
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.trend-growing {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.trend-softening {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.trend-stable {
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+}
+
+.section-title {
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.macro-card {
+  padding: 24px;
+}
+
+.macro-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(79, 142, 247, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: #4f8ef7;
+  font-size: 18px;
+}
+
+.macro-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.macro-desc {
+  font-size: 13px;
+  color: #6b7694;
+  line-height: 1.5;
+}
+
+/* ========================================
+   AI Advisor
+   ======================================== */
+
+.advisor-container {
+  max-width: 720px;
+}
+
+.advisor-title {
+  font-size: 32px;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.advisor-subtitle {
+  font-size: 14px;
+  color: #6b7694;
+  margin-bottom: 32px;
+}
+
+.advisor-input-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.advisor-input {
+  flex: 1;
+  background: #0d1120;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: #e0e6f0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.advisor-input::placeholder {
+  color: #5a6478;
+}
+
+.advisor-input:focus {
+  border-color: rgba(79, 142, 247, 0.4);
+}
+
+.advisor-send-btn {
+  padding: 14px 28px;
+  background: #4f8ef7;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.advisor-send-btn:hover {
+  background: #3d7de6;
+  transform: translateY(-1px);
+}
+
+.advisor-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.suggested-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.chip {
+  padding: 8px 16px;
+  background: rgba(79, 142, 247, 0.08);
+  border: 1px solid rgba(79, 142, 247, 0.15);
+  border-radius: 20px;
+  color: #8892a8;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.chip:hover {
+  background: rgba(79, 142, 247, 0.15);
+  border-color: rgba(79, 142, 247, 0.3);
+  color: #c0c8dc;
+}
+
+.advisor-response {
+  background: #0d1120;
+  border: 1px solid rgba(79, 142, 247, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  line-height: 1.7;
+  font-size: 14.5px;
+  color: #c0c8dc;
+}
+
+.advisor-response-label {
+  font-size: 11px;
+  color: #4f8ef7;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+  padding: 20px 0;
+  justify-content: center;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: #4f8ef7;
+  border-radius: 50%;
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.advisor-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  color: #ef4444;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Responsive - 1200px breakpoint
+   ======================================== */
+
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 64px;
+    overflow: hidden;
+  }
+
+  .sidebar-logo h2,
+  .sidebar-logo .logo-sub,
+  .nav-item span,
+  .user-name,
+  .user-role,
+  .portfolio-link {
+    display: none;
+  }
+
+  .sidebar-logo {
+    padding: 20px 14px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .sidebar-logo .logo-icon-mobile {
+    display: block;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .sidebar-footer {
+    display: flex;
+    justify-content: center;
+    padding: 16px 10px;
+  }
+
+  .user-chip {
+    justify-content: center;
+  }
+
+  .main-content {
+    margin-left: 64px;
+    padding: 24px 20px;
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .property-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .submarket-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .macro-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dcf-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dealflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-overlay {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .output-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .property-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submarket-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .macro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .output-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-overlay {
+    width: 100%;
+  }
+
+  .advisor-input-wrapper {
+    flex-direction: column;
+  }
+}
+
+
+// ============================================
+// FILE: vercel.json
+// ============================================
+
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
+}
+
+
+// ============================================
+// FILE: vite.config.js
+// ============================================
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
+  }
+})
+
+
+========================================
+  GitHub Repository
+  https://github.com/serdtfryguhhash/orlando-cre
+========================================
