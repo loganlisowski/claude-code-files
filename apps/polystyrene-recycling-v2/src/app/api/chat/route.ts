@@ -1,7 +1,8 @@
-import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { streamText, UIMessage, convertToModelMessages } from "ai";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
 const SYSTEM_PROMPT = `You are PolystyreneGuy, a friendly and knowledgeable recycling expert specializing in polystyrene (commonly known as Styrofoam). Your personality is:
 - Enthusiastic about recycling and sustainability
@@ -32,13 +33,36 @@ You advocate for recycling polystyrene rather than banning it, because:
 Keep responses concise (2-4 sentences for simple questions, longer for complex topics). If asked something completely outside your expertise, politely redirect to polystyrene recycling topics. Always be helpful and encouraging about recycling efforts.`;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  try {
+    const { messages } = await req.json();
 
-  const result = streamText({
-    model: openai("gpt-4o-mini"),
-    system: SYSTEM_PROMPT,
-    messages,
-  });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-  return result.toTextStreamResponse();
+    const anthropic = createAnthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    // Convert UIMessages (from the frontend) to CoreMessages (for the model)
+    const modelMessages = convertToModelMessages(messages as UIMessage[]);
+
+    const result = streamText({
+      model: anthropic("claude-haiku-4-5-20251001"),
+      system: SYSTEM_PROMPT,
+      messages: modelMessages,
+    });
+
+    return result.toTextStreamResponse();
+  } catch (error: unknown) {
+    console.error("Chat API error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(
+      JSON.stringify({ error: message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }
