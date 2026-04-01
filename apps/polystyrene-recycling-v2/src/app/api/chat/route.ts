@@ -1,5 +1,5 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { streamText, UIMessage, convertToModelMessages } from "ai";
+import { streamText, type CoreMessage } from "ai";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -32,6 +32,30 @@ You advocate for recycling polystyrene rather than banning it, because:
 
 Keep responses concise (2-4 sentences for simple questions, longer for complex topics). If asked something completely outside your expertise, politely redirect to polystyrene recycling topics. Always be helpful and encouraging about recycling efforts.`;
 
+// Extract text from a message regardless of format (UIMessage with parts or CoreMessage with content)
+function toCoreMessages(messages: Record<string, unknown>[]): CoreMessage[] {
+  return messages.map((msg) => {
+    const role = msg.role as "user" | "assistant";
+
+    // UIMessage format: has parts array
+    if (Array.isArray(msg.parts)) {
+      const text = (msg.parts as Array<{ type: string; text?: string }>)
+        .filter((p) => p.type === "text" && p.text)
+        .map((p) => p.text)
+        .join("");
+      return { role, content: text } as CoreMessage;
+    }
+
+    // CoreMessage format: has content string
+    if (typeof msg.content === "string") {
+      return { role, content: msg.content } as CoreMessage;
+    }
+
+    // Fallback
+    return { role, content: "" } as CoreMessage;
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
@@ -47,13 +71,12 @@ export async function POST(req: Request) {
       apiKey: process.env.ANTHROPIC_API_KEY,
     });
 
-    // Convert UIMessages (from the frontend) to CoreMessages (for the model)
-    const modelMessages = convertToModelMessages(messages as UIMessage[]);
+    const coreMessages = toCoreMessages(messages);
 
     const result = streamText({
       model: anthropic("claude-haiku-4-5-20251001"),
       system: SYSTEM_PROMPT,
-      messages: modelMessages,
+      messages: coreMessages,
     });
 
     return result.toTextStreamResponse();
