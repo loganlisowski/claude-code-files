@@ -109,12 +109,12 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: hsl(var(--background) / 0.75);
+  background: hsl(var(--background) / 0.1);
   pointer-events: none;
 }
 
 .light .video-overlay {
-  background: hsl(var(--background) / 0.82);
+  background: hsl(var(--background) / 0.1);
 }
 
 /* Ensure page content sits above bg layers */
