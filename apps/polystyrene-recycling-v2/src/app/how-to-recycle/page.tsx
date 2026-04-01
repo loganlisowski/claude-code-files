@@ -19,6 +19,7 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { SectionReveal } from "@/components/shared/SectionReveal";
 import { IconMap } from "@/components/shared/IconMap";
 import { recyclingMethods, policyData } from "@/data/polystyrene-data";
+import { stateMapPaths } from "@/data/us-map-paths";
 import { cn } from "@/lib/utils";
 
 // ─── Step-by-Step Wizard Data ───
@@ -215,6 +216,144 @@ function MethodCard({
         </div>
       </div>
     </GlassCard>
+  );
+}
+
+// ─── Interactive US Map ───
+function InteractiveUSMap() {
+  const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+
+  const getStateColor = (stateId: string) => {
+    const policy = policyData.find((p) => p.abbreviation === stateId);
+    if (!policy) return "fill-muted-foreground/20";
+    switch (policy.type) {
+      case "ban":
+        return "fill-red-500/60 hover:fill-red-500/80";
+      case "restriction":
+        return "fill-amber-500/60 hover:fill-amber-500/80";
+      case "no-ban":
+        return "fill-emerald-500/60 hover:fill-emerald-500/80";
+      default:
+        return "fill-muted-foreground/20";
+    }
+  };
+
+  const selectedPolicy = selectedState
+    ? policyData.find((p) => p.abbreviation === selectedState)
+    : null;
+  const hoveredPolicy = hoveredState
+    ? policyData.find((p) => p.abbreviation === hoveredState)
+    : null;
+
+  const displayPolicy = selectedPolicy || hoveredPolicy;
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <GlassCard className="p-6 md:p-8">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Map */}
+          <div className="flex-1 min-w-0">
+            <svg
+              viewBox="0 0 960 600"
+              className="w-full h-auto"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {stateMapPaths.map((state) => (
+                <path
+                  key={state.id}
+                  d={state.d}
+                  className={cn(
+                    "stroke-border/60 stroke-[1] cursor-pointer transition-all duration-200",
+                    selectedState === state.id
+                      ? "stroke-primary stroke-[2.5] brightness-125"
+                      : getStateColor(state.id)
+                  )}
+                  onMouseEnter={() => setHoveredState(state.id)}
+                  onMouseLeave={() => setHoveredState(null)}
+                  onClick={() =>
+                    setSelectedState(selectedState === state.id ? null : state.id)
+                  }
+                >
+                  <title>{state.name}</title>
+                </path>
+              ))}
+            </svg>
+
+            {/* Legend */}
+            <div className="flex flex-wrap justify-center gap-4 mt-4">
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                <span className="text-muted-foreground">Banned</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 rounded-full bg-amber-500/60" />
+                <span className="text-muted-foreground">Restricted</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
+                <span className="text-muted-foreground">No Ban</span>
+              </div>
+            </div>
+          </div>
+
+          {/* State Info Panel */}
+          <div className="lg:w-72 flex-shrink-0">
+            <AnimatePresence mode="wait">
+              {displayPolicy ? (
+                <motion.div
+                  key={displayPolicy.abbreviation}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl font-black text-primary">
+                      {displayPolicy.abbreviation}
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-lg leading-tight">
+                        {displayPolicy.state}
+                      </h3>
+                      <Badge
+                        className={cn(
+                          "text-[10px] border mt-1",
+                          getPolicyBadgeColor(displayPolicy.type)
+                        )}
+                      >
+                        {getPolicyLabel(displayPolicy.type)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {displayPolicy.description}
+                  </p>
+                  {displayPolicy.year > 0 && (
+                    <p className="text-xs text-muted-foreground/60">
+                      Policy since {displayPolicy.year}
+                    </p>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-full text-center py-8"
+                >
+                  <IconMap name="Map" className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Hover over or click a state to see its polystyrene policy
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </GlassCard>
+    </div>
   );
 }
 
@@ -495,6 +634,116 @@ export default function HowToRecyclePage() {
               </motion.div>
             </AnimatePresence>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════ SEE RECYCLING IN ACTION ═══════════ */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <SectionReveal>
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold uppercase tracking-wider">
+                Real-World Example
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                See Recycling in Action
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+                Watch how Chick-fil-A recycles their polystyrene cups through an innovative
+                closed-loop recycling process.
+              </p>
+            </div>
+          </SectionReveal>
+
+          <SectionReveal delay={0.15}>
+            <div className="max-w-4xl mx-auto">
+              <GlassCard className="p-0 overflow-hidden">
+                <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src="https://www.youtube.com/embed/JxO_601oru8?rel=0&modestbranding=1"
+                    title="Chick-fil-A Polystyrene Cup Recycling Process"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </GlassCard>
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                Chick-fil-A Polystyrene Cup Recycling Process
+              </p>
+            </div>
+          </SectionReveal>
+        </div>
+      </section>
+
+      {/* ═══════════ FIND RECYCLING LOCATIONS ═══════════ */}
+      <section className="py-20 md:py-28 relative">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 40% at 50% 50%, hsl(var(--primary) / 0.05), transparent)",
+          }}
+        />
+        <div className="container mx-auto px-4">
+          <SectionReveal>
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs font-semibold uppercase tracking-wider">
+                680+ Locations
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Find Recycling Locations Near You
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+                The EPS Industry Alliance maintains 680+ foam-specific drop-off and recycling
+                locations across North America. Click a state to see its policy, or use the
+                interactive map below.
+              </p>
+            </div>
+          </SectionReveal>
+
+          {/* Interactive SVG Map */}
+          <SectionReveal delay={0.1}>
+            <InteractiveUSMap />
+          </SectionReveal>
+
+          {/* BatchGeo embed */}
+          <SectionReveal delay={0.2}>
+            <div className="max-w-5xl mx-auto mt-12">
+              <GlassCard className="p-0 overflow-hidden">
+                <div className="relative w-full" style={{ paddingBottom: "60%" }}>
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src="https://batchgeo.com/map/EPSRecyclingMap"
+                    title="EPS Recycling Drop-off Locations"
+                    style={{ border: 0 }}
+                  />
+                </div>
+              </GlassCard>
+              <div className="flex flex-wrap justify-center gap-4 mt-6">
+                <a
+                  href="https://www.epspackaging.org/recycling-locator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" className="gap-2">
+                    <Search className="h-4 w-4" />
+                    EPS Industry Alliance Locator
+                  </Button>
+                </a>
+                <a
+                  href="https://search.earth911.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" className="gap-2">
+                    <Search className="h-4 w-4" />
+                    Earth911 (100,000+ Locations)
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </SectionReveal>
         </div>
       </section>
 
