@@ -1,5 +1,5 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { streamText, type CoreMessage } from "ai";
+import { streamText } from "ai";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -30,10 +30,12 @@ You advocate for recycling polystyrene rather than banning it, because:
 - Recycling technology is rapidly advancing (depolymerization, compaction)
 - Building recycling infrastructure creates a circular economy
 
-Keep responses concise (2-4 sentences for simple questions, longer for complex topics). If asked something completely outside your expertise, politely redirect to polystyrene recycling topics. Always be helpful and encouraging about recycling efforts.`;
+Keep responses concise (2-4 sentences for simple questions, longer for complex topics). If asked something completely outside your expertise, politely redirect to polystyrene recycling topics. Always be helpful and encouraging about recycling efforts.
+
+IMPORTANT: Never use emdashes or endashes in your responses. Use commas, periods, colons, semicolons, or parentheses instead.`;
 
 // Extract text from a message regardless of format (UIMessage with parts or CoreMessage with content)
-function toCoreMessages(messages: Record<string, unknown>[]): CoreMessage[] {
+function toCoreMessages(messages: Record<string, unknown>[]): Array<{ role: "user" | "assistant"; content: string }> {
   return messages.map((msg) => {
     const role = msg.role as "user" | "assistant";
 
@@ -43,16 +45,16 @@ function toCoreMessages(messages: Record<string, unknown>[]): CoreMessage[] {
         .filter((p) => p.type === "text" && p.text)
         .map((p) => p.text)
         .join("");
-      return { role, content: text } as CoreMessage;
+      return { role, content: text };
     }
 
     // CoreMessage format: has content string
     if (typeof msg.content === "string") {
-      return { role, content: msg.content } as CoreMessage;
+      return { role, content: msg.content as string };
     }
 
     // Fallback
-    return { role, content: "" } as CoreMessage;
+    return { role, content: "" };
   });
 }
 

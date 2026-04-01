@@ -104,6 +104,19 @@ body::after {
   background: none;
 }
 
+/* Video overlay - tints the background video to match the theme */
+.video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: hsl(var(--background) / 0.75);
+  pointer-events: none;
+}
+
+.light .video-overlay {
+  background: hsl(var(--background) / 0.82);
+}
+
 /* Ensure page content sits above bg layers */
 #__next, main, nav, footer {
   position: relative;

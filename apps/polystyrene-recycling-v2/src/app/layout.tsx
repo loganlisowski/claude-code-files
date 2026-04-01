@@ -53,6 +53,31 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: "fixed",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: -2,
+          }}
+        >
+          <source
+            src="https://videos.pexels.com/video-files/3571264/3571264-uhd_2560_1440_30fps.mp4"
+            type="video/mp4"
+          />
+          <source
+            src="https://videos.pexels.com/video-files/1918465/1918465-hd_1920_1080_30fps.mp4"
+            type="video/mp4"
+          />
+        </video>
+        <div className="video-overlay" />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
