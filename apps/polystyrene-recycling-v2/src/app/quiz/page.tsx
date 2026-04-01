@@ -7,7 +7,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { SectionReveal } from "@/components/shared/SectionReveal";
-import { AnimatedCounter } from "@/components/shared/AnimatedCounter";
 import { ConfettiEffect } from "@/components/shared/ConfettiEffect";
 import { useGameification } from "@/hooks/useGameification";
 import { XP_VALUES } from "@/lib/constants";
@@ -24,6 +23,11 @@ import {
   CheckCircle2,
   XCircle,
   Zap,
+  Share2,
+  Copy,
+  Check,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 
 // ─── Quiz Question Data ──────────────────────────────────────────────────────
@@ -200,6 +204,7 @@ export default function QuizPage() {
   const [timer, setTimer] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Timer
   useEffect(() => {
@@ -561,51 +566,57 @@ export default function QuizPage() {
             >
               <ConfettiEffect trigger={showConfetti} />
 
-              <GlassCard className="text-center">
-                <div className="mb-6">
-                  <Trophy className="h-16 w-16 mx-auto mb-4 text-yellow-400" />
-                  <h2 className="text-3xl font-bold mb-2">Quiz Complete!</h2>
-                  <p className="text-muted-foreground">
+              {/* Shareable Result Card */}
+              <div className="relative rounded-2xl overflow-hidden mb-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--quiz))] via-purple-600 to-blue-600 opacity-90" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
+                <div className="relative p-8 md:p-10 text-center text-white">
+                  <Trophy className="h-14 w-14 mx-auto mb-3 text-yellow-300 drop-shadow-lg" />
+                  <h2 className="text-2xl font-bold mb-1">Quiz Complete!</h2>
+                  <p className="text-white/70 text-sm mb-6">
                     {DIFFICULTY_CONFIG[difficulty].label} Difficulty
                   </p>
-                </div>
 
-                {/* Score */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <AnimatedCounter
-                      value={score}
-                      className="text-6xl text-[hsl(var(--quiz))]"
-                    />
-                    <span className="text-3xl text-muted-foreground font-bold">
-                      / {questions.length}
-                    </span>
+                  {/* Large Score Display */}
+                  <div className="mb-6">
+                    <div className="text-7xl md:text-8xl font-extrabold tracking-tight drop-shadow-md">
+                      {percentage}%
+                    </div>
+                    <div className={cn(
+                      "text-3xl font-bold mt-2",
+                      percentage >= 90 ? "text-yellow-300" :
+                      percentage >= 70 ? "text-blue-200" :
+                      percentage >= 50 ? "text-orange-200" : "text-red-200"
+                    )}>
+                      Grade: {gradeInfo.grade}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-center gap-4 mt-4">
+
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-center gap-6 mb-4">
                     <div className="text-center">
-                      <div className={cn("text-4xl font-bold", gradeInfo.color)}>
-                        {gradeInfo.grade}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Grade</div>
+                      <div className="text-2xl font-bold">{score}/{questions.length}</div>
+                      <div className="text-xs text-white/60">Correct</div>
                     </div>
-                    <div className="w-px h-12 bg-border" />
+                    <div className="w-px h-10 bg-white/20" />
                     <div className="text-center">
-                      <div className="text-4xl font-bold">{percentage}%</div>
-                      <div className="text-sm text-muted-foreground">Score</div>
-                    </div>
-                    <div className="w-px h-12 bg-border" />
-                    <div className="text-center">
-                      <div className="text-4xl font-bold flex items-center gap-1">
-                        <Clock className="h-6 w-6" />
+                      <div className="text-2xl font-bold flex items-center gap-1 justify-center">
+                        <Clock className="h-5 w-5" />
                         {formatTime(timer)}
                       </div>
-                      <div className="text-sm text-muted-foreground">Time</div>
+                      <div className="text-xs text-white/60">Time</div>
                     </div>
                   </div>
-                </div>
 
+                  <div className="text-sm text-white/50 mt-4">
+                    @PolystyreneGuy Polystyrene Quiz
+                  </div>
+                </div>
+              </div>
+
+              <GlassCard className="text-center">
                 {/* XP earned */}
-                <div className="mb-8 p-4 rounded-xl bg-[hsl(var(--quiz))/0.1] border border-[hsl(var(--quiz))/0.3]">
+                <div className="mb-6 p-4 rounded-xl bg-[hsl(var(--quiz))/0.1] border border-[hsl(var(--quiz))/0.3]">
                   <div className="flex items-center justify-center gap-2">
                     <Zap className="h-5 w-5 text-yellow-400" />
                     <span className="font-semibold">
@@ -621,6 +632,63 @@ export default function QuizPage() {
                       Perfect score bonus applied!
                     </p>
                   )}
+                </div>
+
+                {/* Share Buttons */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center justify-center gap-2">
+                    <Share2 className="h-4 w-4" />
+                    Share Your Results
+                  </h3>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const text = `I scored ${percentage}% (Grade: ${gradeInfo.grade}) on the @PolystyreneGuy Polystyrene Quiz! Can you beat my score? #PolyRecycle #Recycling`;
+                        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      }}
+                      className="w-full sm:w-auto gap-2"
+                    >
+                      <Twitter className="h-4 w-4" />
+                      Share on X / Twitter
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const text = `I scored ${percentage}% (Grade: ${gradeInfo.grade}) on the @PolystyreneGuy Polystyrene Quiz! Test your knowledge too. #PolyRecycle #Recycling`;
+                        navigator.clipboard.writeText(text).then(() => {
+                          toast.success("Share text copied for Instagram Story!");
+                        }).catch(() => {
+                          toast.error("Could not copy to clipboard");
+                        });
+                      }}
+                      className="w-full sm:w-auto gap-2"
+                    >
+                      <Instagram className="h-4 w-4" />
+                      Share on Instagram Story
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const text = `I scored ${percentage}% (Grade: ${gradeInfo.grade}) on the @PolystyreneGuy Polystyrene Quiz! #PolyRecycle #Recycling`;
+                        navigator.clipboard.writeText(text).then(() => {
+                          setCopied(true);
+                          toast.success("Copied to clipboard!");
+                          setTimeout(() => setCopied(false), 2000);
+                        }).catch(() => {
+                          toast.error("Could not copy to clipboard");
+                        });
+                      }}
+                      className="w-full sm:w-auto gap-2"
+                    >
+                      {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                      {copied ? "Copied!" : "Copy to Clipboard"}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Actions */}

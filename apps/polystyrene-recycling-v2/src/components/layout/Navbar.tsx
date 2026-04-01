@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Recycle, Menu, X } from "lucide-react";
+import { Recycle, Menu, X, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { ProgressDashboard } from "@/components/shared/ProgressDashboard";
@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/quiz", label: "Quiz" },
   { href: "/games", label: "Games" },
   { href: "/environmental-impact", label: "Impact" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -41,7 +42,8 @@ export function Navbar() {
             className="flex items-center gap-2 text-lg font-bold text-primary transition-colors hover:text-primary/80"
           >
             <Recycle className="h-6 w-6" />
-            <span>PolyRecycle</span>
+            <span className="hidden sm:inline">@PolystyreneGuy</span>
+            <span className="sm:hidden">@PolyGuy</span>
           </Link>
 
           {/* Desktop nav links */}
@@ -64,6 +66,15 @@ export function Navbar() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
+            <a
+              href="https://instagram.com/polystyreneguy"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow @PolystyreneGuy on Instagram"
+              className="hidden sm:flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
             <ProgressDashboard />
             <ThemeToggle />
 
@@ -111,6 +122,15 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <a
+                href="https://instagram.com/polystyreneguy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              >
+                <Instagram className="h-4 w-4" />
+                Follow @PolystyreneGuy
+              </a>
             </div>
           </motion.div>
         )}

@@ -10,6 +10,9 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Copy,
+  Check,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -69,6 +72,7 @@ function FactCard({
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.3 });
   const hasTracked = useRef(false);
   const [showShare, setShowShare] = useState(false);
+  const [factCopied, setFactCopied] = useState(false);
 
   useEffect(() => {
     if (inView && !hasTracked.current) {
@@ -76,6 +80,96 @@ function FactCard({
       onViewed(fact.id);
     }
   }, [inView, fact.id, onViewed]);
+
+  const shareText = `Did you know? ${fact.stat} ${fact.unit} - ${fact.description} via @PolystyreneGuy #PolyRecycle #Recycling`;
+
+  const copyFactText = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setFactCopied(true);
+      toast.success("Fact copied to clipboard!");
+      setTimeout(() => setFactCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
+  };
+
+  const downloadFactAsImage = async () => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = 1080;
+    canvas.height = 1920;
+
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#0a3d2a");
+    gradient.addColorStop(0.5, "#1a1a2e");
+    gradient.addColorStop(1, "#16213e");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Decorative circle
+    ctx.beginPath();
+    ctx.arc(540, 500, 200, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(34, 197, 94, 0.15)";
+    ctx.fill();
+
+    // "Did you know?" label
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.font = "bold 36px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Did you know?", 540, 420);
+
+    // Stat
+    ctx.fillStyle = "#22c55e";
+    ctx.font = "bold 96px system-ui, sans-serif";
+    ctx.fillText(fact.stat, 540, 540);
+
+    // Unit
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = "32px system-ui, sans-serif";
+    ctx.fillText(fact.unit, 540, 600);
+
+    // Description (word wrap)
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.font = "30px system-ui, sans-serif";
+    const words = fact.description.split(" ");
+    let line = "";
+    let y = 720;
+    const maxWidth = 860;
+    for (const word of words) {
+      const testLine = line + word + " ";
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && line !== "") {
+        ctx.fillText(line.trim(), 540, y);
+        line = word + " ";
+        y += 46;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line.trim(), 540, y);
+
+    // Category badge
+    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.font = "bold 24px system-ui, sans-serif";
+    ctx.fillText(fact.category.toUpperCase(), 540, y + 90);
+
+    // Footer
+    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.font = "26px system-ui, sans-serif";
+    ctx.fillText("@PolystyreneGuy", 540, 1780);
+    ctx.font = "22px system-ui, sans-serif";
+    ctx.fillText("#PolyRecycle  #Recycling", 540, 1820);
+
+    const link = document.createElement("a");
+    link.download = `polystyrene-fact-${fact.id}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    toast.success("Fact image downloaded!");
+  };
 
   return (
     <div ref={ref}>
@@ -133,12 +227,34 @@ function FactCard({
                       initial={{ opacity: 0, scale: 0.9, y: 5 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 5 }}
-                      className="absolute bottom-full right-0 mb-2 glass rounded-lg p-2 z-10"
+                      className="absolute bottom-full right-0 mb-2 glass rounded-lg p-3 z-10 min-w-[200px]"
                     >
-                      <ShareButtons
-                        url={`${typeof window !== "undefined" ? window.location.origin : ""}/fun-facts#${fact.id}`}
-                        title={`${fact.stat} ${fact.unit} - ${fact.description}`}
-                      />
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={copyFactText}
+                          className="w-full justify-start gap-2 text-xs"
+                        >
+                          {factCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                          {factCopied ? "Copied!" : "Copy share text"}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={downloadFactAsImage}
+                          className="w-full justify-start gap-2 text-xs"
+                        >
+                          <Download className="h-3 w-3" />
+                          Download as image
+                        </Button>
+                        <div className="border-t border-border/50 pt-1">
+                          <ShareButtons
+                            url={`${typeof window !== "undefined" ? window.location.origin : ""}/fun-facts#${fact.id}`}
+                            title={shareText}
+                          />
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

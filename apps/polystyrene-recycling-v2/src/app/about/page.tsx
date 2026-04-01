@@ -16,39 +16,39 @@ import { cn } from "@/lib/utils";
 const timelineEvents = [
   {
     year: "1839",
-    title: "Discovery",
+    title: "Discovered by Accident",
     description:
-      "German apothecary Eduard Simon first isolates polystyrene from a natural resin called storax. The material is a curiosity with no practical application yet, but its unique properties are noted by European chemists.",
+      "A German pharmacist named Eduard Simon stumbles onto polystyrene while experimenting with tree resin. He has no idea what to do with it. Nobody does, for about a hundred years.",
   },
   {
     year: "1941",
-    title: "Mass Production",
+    title: "Goes Big for the Military",
     description:
-      "Dow Chemical begins commercial mass production of polystyrene for military applications during World War II. Its lightweight strength and insulating properties make it ideal for radar components and military packaging.",
+      "Dow Chemical starts mass-producing polystyrene for World War II. Turns out it&apos;s perfect for radar parts and military packaging because it&apos;s incredibly light and a great insulator.",
   },
   {
     year: "1960s",
-    title: "EPS Packaging Era",
+    title: "Foam Takes Over",
     description:
-      "Expanded Polystyrene (EPS) foam packaging becomes widespread for food service and product protection. Foam cups, takeout containers, and protective packaging transform the retail and food industries worldwide.",
+      "EPS foam packaging explodes into everyday life. Coffee cups, takeout boxes, packing peanuts. The food and shipping industries are completely transformed. The convenience is incredible. The waste problem? Nobody&apos;s thinking about that yet.",
   },
   {
     year: "1988",
-    title: "Resin Code #6",
+    title: "Gets Its Own Number",
     description:
-      "The Society of the Plastics Industry introduces the resin identification coding system. Polystyrene receives code #6, establishing a standardized way for consumers and recyclers to identify and sort the material.",
+      "The plastics industry creates the resin code system. Polystyrene gets #6. For the first time, consumers and recyclers have a standard way to identify and sort it. Look for that little triangle on the bottom of your cup.",
   },
   {
     year: "2000s",
-    title: "Recycling Technology Advances",
+    title: "Recycling Gets Real",
     description:
-      "Mechanical recycling technologies mature with the development of industrial compactors and densifiers that compress EPS by 50:1. Specialized recycling facilities open across North America, creating viable collection networks.",
+      "Industrial compactors and densifiers arrive that can crush EPS foam down to 1/50th its original size. Suddenly, recycling polystyrene becomes economically viable. Specialized facilities start popping up across North America.",
   },
   {
     year: "2020s",
-    title: "Chemical Recycling Revolution",
+    title: "The Game Changes",
     description:
-      "Breakthrough chemical recycling technologies including pyrolysis and depolymerization achieve commercial scale. In 2025, food-grade recycled polystyrene is produced for the first time, enabling true circular recycling.",
+      "Chemical recycling hits commercial scale. For the first time ever, used polystyrene can be broken down and remade into food-grade material. True circular recycling becomes reality, not just a concept.",
   },
 ];
 
@@ -56,14 +56,15 @@ const timelineEvents = [
 const epsData = {
   name: "EPS",
   fullName: "Expanded Polystyrene",
+  tagline: "The white foam you see everywhere",
   traits: [
-    { label: "Composition", value: "95% air, 5% plastic" },
-    { label: "Appearance", value: "White, beaded texture" },
-    { label: "Density", value: "Low (15-30 kg/m\u00B3)" },
-    { label: "Primary Use", value: "Food packaging, cups" },
-    { label: "Recyclability", value: "Widely recyclable" },
-    { label: "Insulation", value: "R-3.6 per inch" },
-    { label: "Brand Name", value: "Generic foam" },
+    { label: "What&apos;s it made of?", value: "95% air, 5% plastic" },
+    { label: "What does it look like?", value: "White with tiny beads" },
+    { label: "How heavy is it?", value: "Very light (15-30 kg/m\u00B3)" },
+    { label: "Used for", value: "Cups, takeout, packaging" },
+    { label: "Can you recycle it?", value: "Yes, widely recyclable" },
+    { label: "Insulation rating", value: "R-3.6 per inch" },
+    { label: "People call it", value: "\"Styrofoam\" (incorrectly)" },
     { label: "Structure", value: "Open/closed cell mix" },
   ],
 };
@@ -71,14 +72,15 @@ const epsData = {
 const xpsData = {
   name: "XPS",
   fullName: "Extruded Polystyrene",
+  tagline: "The colored boards in construction",
   traits: [
-    { label: "Composition", value: "Denser polymer matrix" },
-    { label: "Appearance", value: "Colored (blue/pink/green)" },
-    { label: "Density", value: "High (25-45 kg/m\u00B3)" },
-    { label: "Primary Use", value: "Building insulation" },
-    { label: "Recyclability", value: "Specialized facilities" },
-    { label: "Insulation", value: "R-5.0 per inch" },
-    { label: "Brand Name", value: 'Styrofoam\u2122 (Dow)' },
+    { label: "What&apos;s it made of?", value: "Dense polymer matrix" },
+    { label: "What does it look like?", value: "Blue, pink, or green boards" },
+    { label: "How heavy is it?", value: "Heavier (25-45 kg/m\u00B3)" },
+    { label: "Used for", value: "Building insulation" },
+    { label: "Can you recycle it?", value: "Yes, at specialized spots" },
+    { label: "Insulation rating", value: "R-5.0 per inch" },
+    { label: "People call it", value: "Styrofoam\u2122 (correctly!)" },
     { label: "Structure", value: "Uniform closed cell" },
   ],
 };
@@ -118,14 +120,89 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
-              About <span className="text-primary">Polystyrene</span>
+              So, What <span className="text-primary">Is</span> This Stuff?
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              From its discovery in 1839 to cutting-edge recycling breakthroughs, explore the
-              science, history, and future of this ubiquitous material.
+              It&apos;s in your coffee cup. Your takeout box. The packaging around your new TV.
+              And almost nobody knows the first thing about it. Let&apos;s fix that.
             </p>
           </motion.div>
         </SectionReveal>
+      </section>
+
+      {/* ═══════════ WHO IS @POLYSTYRENEGUY ═══════════ */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <SectionReveal>
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+                Who is <span className="text-primary">@PolystyreneGuy</span>?
+              </h2>
+              <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
+                <p>
+                  Hi. I&apos;m the person behind @PolystyreneGuy. I started this because I was
+                  frustrated by a simple problem: polystyrene is 100% recyclable, but almost
+                  nobody knows that.
+                </p>
+                <p>
+                  I kept hearing people say foam &ldquo;can&apos;t be recycled.&rdquo; I watched perfectly good
+                  material get tossed in the trash, day after day, because the information just
+                  wasn&apos;t getting to regular people. The science was there. The recycling
+                  technology was there. The communication? Nowhere.
+                </p>
+                <p>
+                  So I started making content about it. Simple, clear, no-jargon content that
+                  anyone can understand. And it turns out, people actually want to know this stuff.
+                  They just needed someone to explain it in plain English.
+                </p>
+              </div>
+            </div>
+          </SectionReveal>
+        </div>
+      </section>
+
+      {/* ═══════════ WHY I STARTED THIS ═══════════ */}
+      <section className="py-20 md:py-28 relative">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 40% at 50% 50%, hsla(160, 84%, 39%, 0.05), transparent)",
+          }}
+        />
+        <div className="container mx-auto px-4">
+          <SectionReveal>
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+                Why I Started This
+              </h2>
+              <GlassCard className="p-8 md:p-10">
+                <div className="space-y-4 text-muted-foreground leading-relaxed">
+                  <p>
+                    The moment that changed everything for me was watching a city council meeting
+                    where they voted to ban polystyrene. Their reason? &ldquo;It can&apos;t be recycled.&rdquo;
+                    That&apos;s not true. It can be recycled. It is being recycled. Over 136 million
+                    pounds of it were recycled in the US in a single year.
+                  </p>
+                  <p>
+                    The problem isn&apos;t the material. The problem is that most people, including
+                    policymakers, have outdated information. They&apos;re making decisions based on
+                    myths from the 1990s.
+                  </p>
+                  <p>
+                    This app, this Instagram account, all of it exists to close that information
+                    gap. Not with corporate brochures or academic papers. With content that&apos;s
+                    actually fun to read, easy to share, and impossible to forget.
+                  </p>
+                  <p className="text-foreground font-medium">
+                    If you learn one thing here today and share it with one person, we&apos;ve already
+                    made progress.
+                  </p>
+                </div>
+              </GlassCard>
+            </div>
+          </SectionReveal>
+        </div>
       </section>
 
       {/* ═══════════ POLYSTYRENE TYPES ═══════════ */}
@@ -133,10 +210,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <SectionReveal>
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Types of Polystyrene</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">The Two Types You Need to Know</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Polystyrene comes in different forms, each with unique properties and recycling
-                considerations.
+                There are different kinds of polystyrene, and they&apos;re recycled differently.
+                Here&apos;s the quick breakdown.
               </p>
             </div>
           </SectionReveal>
@@ -168,7 +245,7 @@ export default function AboutPage() {
                     {/* Characteristics */}
                     <div>
                       <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Characteristics
+                        Key Traits
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {type.characteristics.map((char) => (
@@ -182,7 +259,7 @@ export default function AboutPage() {
                     {/* Common Uses */}
                     <div>
                       <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Common Uses
+                        Where You&apos;ll Find It
                       </h4>
                       <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                         {type.commonUses.map((use) => (
@@ -204,7 +281,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ═══════════ MANUFACTURING TIMELINE ═══════════ */}
+      {/* ═══════════ TIMELINE ═══════════ */}
       <section className="py-20 md:py-28 relative">
         <div
           className="absolute inset-0 -z-10"
@@ -216,10 +293,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <SectionReveal>
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">The Polystyrene Timeline</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">How We Got Here</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Key milestones in the history of polystyrene, from discovery to modern recycling
-                breakthroughs.
+                From an accidental discovery to a recycling revolution. The story of polystyrene
+                in six key moments.
               </p>
             </div>
           </SectionReveal>
@@ -274,10 +351,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <SectionReveal>
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">EPS vs XPS</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">EPS vs XPS: What&apos;s the Difference?</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Understanding the differences between Expanded and Extruded Polystyrene is essential
-                for proper recycling and disposal.
+                One is the white foam in your coffee cup. The other is the colored board
+                in your walls. Here&apos;s how to tell them apart.
               </p>
             </div>
           </SectionReveal>
@@ -295,6 +372,7 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-2xl font-bold text-emerald-400">{epsData.name}</h3>
                     <p className="text-sm text-muted-foreground">{epsData.fullName}</p>
+                    <p className="text-xs text-primary mt-1">{epsData.tagline}</p>
                   </div>
                   <div className="space-y-3">
                     {epsData.traits.map((trait) => (
@@ -307,8 +385,8 @@ export default function AboutPage() {
                     ))}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge variant="secondary">Food Packaging</Badge>
-                    <Badge variant="secondary">Cups & Containers</Badge>
+                    <Badge variant="secondary">Coffee Cups</Badge>
+                    <Badge variant="secondary">Takeout Containers</Badge>
                     <Badge variant="secondary">Packing Peanuts</Badge>
                   </div>
                 </div>
@@ -327,6 +405,7 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-2xl font-bold text-blue-400">{xpsData.name}</h3>
                     <p className="text-sm text-muted-foreground">{xpsData.fullName}</p>
+                    <p className="text-xs text-primary mt-1">{xpsData.tagline}</p>
                   </div>
                   <div className="space-y-3">
                     {xpsData.traits.map((trait) => (
@@ -339,9 +418,9 @@ export default function AboutPage() {
                     ))}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge variant="secondary">Building Insulation</Badge>
+                    <Badge variant="secondary">Wall Insulation</Badge>
                     <Badge variant="secondary">Foundation Boards</Badge>
-                    <Badge variant="secondary">Roofing Panels</Badge>
+                    <Badge variant="secondary">Roof Panels</Badge>
                   </div>
                 </div>
               </GlassCard>
@@ -362,10 +441,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <SectionReveal>
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Environmental Impact</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">The Numbers Don&apos;t Lie</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                The numbers behind polystyrene waste -- and the enormous potential of expanded
-                recycling infrastructure.
+                Here&apos;s the real environmental impact of polystyrene, and what happens when
+                we actually bother to recycle it.
               </p>
             </div>
           </SectionReveal>

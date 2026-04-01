@@ -20,9 +20,27 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "PolyRecycle — Polystyrene Recycling Education",
+  metadataBase: new URL("https://polystyrene-recycling.vercel.app"),
+  title: {
+    default: "PolyRecycle  -  Polystyrene Recycling, EPS Recycling & Foam Recycling Education",
+    template: "%s | PolyRecycle",
+  },
   description:
-    "Learn about polystyrene recycling through interactive quizzes, games, and educational content. Discover how to recycle polystyrene, debunk myths, and track your environmental impact.",
+    "Learn about polystyrene recycling, EPS recycling, and foam recycling through interactive quizzes, games, and guides. Discover how to recycle styrofoam, HIPS, and all polystyrene types.",
+  openGraph: {
+    title: "PolyRecycle  -  Polystyrene Recycling, EPS Recycling & Foam Recycling Education",
+    description:
+      "Learn about polystyrene recycling, EPS recycling, and foam recycling through interactive quizzes, games, and guides. Discover how to recycle styrofoam, HIPS, and all polystyrene types.",
+    url: "https://polystyrene-recycling.vercel.app",
+    siteName: "PolyRecycle",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PolyRecycle  -  Polystyrene Recycling, EPS Recycling & Foam Recycling Education",
+    description:
+      "Learn about polystyrene recycling, EPS recycling, and foam recycling through interactive quizzes, games, and guides.",
+  },
 };
 
 export default function RootLayout({
