@@ -159,7 +159,7 @@ export default function EnvironmentalImpactPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--data))/0.15] via-transparent to-primary/10" />
         <div className="relative max-w-4xl mx-auto text-center">
           <SectionReveal>
-            <Badge className="w-fit mb-4 bg-[hsl(var(--data))/0.15] text-[hsl(var(--data))] border-[hsl(var(--data))/0.3] hover:bg-[hsl(var(--data))/0.2]">
+            <Badge className="mb-4 bg-[hsl(var(--data))/0.2] text-[hsl(var(--data))] border-[hsl(var(--data))/0.3]">
               <BarChart3 className="h-3 w-3 mr-1" />
               Data & Research
             </Badge>
