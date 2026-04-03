@@ -463,7 +463,7 @@ export default function GamesPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--game))/0.15] via-transparent to-primary/10" />
         <div className="relative max-w-4xl mx-auto text-center">
           <SectionReveal>
-            <Badge className="mb-4 bg-[hsl(var(--game))/0.2] text-[hsl(var(--game))] border-[hsl(var(--game))/0.3]">
+            <Badge className="w-fit mb-4 bg-[hsl(var(--game))/0.15] text-[hsl(var(--game))] border-[hsl(var(--game))/0.3] hover:bg-[hsl(var(--game))/0.2]">
               <Gamepad2 className="h-3 w-3 mr-1" />
               Recycling Games
             </Badge>
